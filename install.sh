@@ -21,8 +21,8 @@ git checkout master
 cd ../..
 
 # Install plugins
-$VIM +PluginInstall +qa
-$VIM +UpdateRemotePlugins +qa
+# $VIM +PluginInstall +qa
+# $VIM +UpdateRemotePlugins +qa
 
 # Build Omnisharp
 if which xbuild; then

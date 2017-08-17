@@ -12,10 +12,6 @@ endif
 " "}}}
 
 " ##### Fix Terminal enter/exit {{{
-tnoremap <silent> <C-up> <C-\><C-n><C-w><up>
-tnoremap <silent> <C-down> <C-\><C-n><C-w><down>
-tnoremap <silent> <C-left> <C-\><C-n><C-w><left>
-tnoremap <silent> <C-right> <C-\><C-n><C-w><right>
 autocmd BufWinEnter,WinEnter term://* startinsert
 autocmd BufLeave term://* stopinsert
 " "}}}
@@ -33,10 +29,12 @@ Plug 'terryma/vim-multiple-cursors'
 Plug 'milkypostman/vim-togglelist'
 Plug 'ton/vim-bufsurf'
 Plug 'jeffkreeftmeijer/vim-numbertoggle'
+Plug 'rust-lang/rust.vim'
 Plug 'nathanaelkane/vim-indent-guides'
 Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'sjl/vitality.vim'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'wakatime/vim-wakatime'
 Plug 'metakirby5/codi.vim'
 Plug 'AndrewRadev/splitjoin.vim'
 Plug 'ntpeters/vim-better-whitespace'
@@ -72,9 +70,12 @@ Plug 'rodjek/vim-puppet'
 Plug 'nsf/gocode', { 'rtp': 'nvim', 'do': '~/.config/nvim/plugged/gocode/nvim/symlink.sh' }
 Plug 'fatih/vim-go'
 Plug 'dag/vim-fish'
+Plug 'elmcast/elm-vim'
 Plug 'pangloss/vim-javascript'
+Plug 'elixir-lang/vim-elixir'
 Plug 'othree/yajs'
 Plug 'mxw/vim-jsx'
+Plug 'slashmili/alchemist.vim'
 Plug 'gkz/vim-ls'
 Plug 'kchmck/vim-coffee-script'
 Plug 'hashivim/vim-terraform'
