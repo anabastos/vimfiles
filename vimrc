@@ -55,14 +55,16 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
 Plug 'Raimondi/delimitMate'
 Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 Plug 'tomtom/tcomment_vim'
-Plug 'maxbrunsfeld/vim-yankstack'
 Plug 'Shougo/vimproc.vim'
+Plug 'bfredl/nvim-miniyank'
 
 " Colorschemes
 Plug 'sjl/badwolf'
 Plug 'dracula/vim'
 Plug 'tomasr/molokai'
+Plug 'morhetz/gruvbox'
 
 " Languages
 Plug 'b4winckler/vim-objc'
@@ -82,6 +84,7 @@ Plug 'hashivim/vim-terraform'
 Plug 'hashivim/vim-packer'
 Plug 'hashivim/vim-consul'
 Plug 'hashivim/vim-vaultproject'
+Plug 'juliosueiras/vim-terraform-completion'
 Plug 'mustache/vim-mustache-handlebars'
 Plug 'ekalinin/Dockerfile.vim'
 Plug 'digitaltoad/vim-pug'
@@ -92,29 +95,29 @@ Plug 'CyCoreSystems/vim-cisco-ios'
 Plug 'tpope/vim-markdown'
 Plug 'jtratner/vim-flavored-markdown'
 Plug 'Matt-Deacalion/vim-systemd-syntax'
+Plug 'ap/vim-css-color'
+Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
 
 " JS Beautify
 Plug 'michalliu/jsruntime.vim'
 Plug 'michalliu/jsoncodecs.vim'
 
 " Omnicompletion
-if has('nvim')
-	Plug 'neomake/neomake'
-	Plug 'Shougo/deoplete.nvim'
-	Plug 'carlitux/deoplete-ternjs'
-	Plug 'zchee/deoplete-go', { 'do': 'make', 'for': 'go' }
-	Plug 'awetzel/elixir.nvim', { 'for': 'exs' }
-	Plug 'zchee/deoplete-clang'
-else
-	Plug 'Valloric/YouCompleteMe'
-	Plug 'scrooloose/syntastic'
-endif
+Plug 'neomake/neomake'
+Plug 'Shougo/deoplete.nvim', { 'do': 'UpdateRemotePlugins' }
+Plug 'Shougo/echodoc.vim'
+Plug 'zchee/deoplete-go', { 'do': 'make', 'for': 'go' }
+Plug 'awetzel/elixir.nvim', { 'for': 'exs' }
+Plug 'zchee/deoplete-clang'
+Plug 'vim-syntastic/syntastic'
+Plug 'tpope/vim-endwise'
 
 " Search
 Plug 'haya14busa/incsearch.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'majutsushi/tagbar'
+Plug 'lvht/tagbar-markdown'
 
 " Git
 Plug 'tpope/vim-fugitive'
@@ -203,7 +206,8 @@ syntax on
 set fillchars+=vert:│
 
 " Sets the colorscheme for terminal sessions too.
-colorscheme dracula
+set background=dark
+colorscheme gruvbox
 
 " Leader = ,
 let mapleader = ","
@@ -253,7 +257,7 @@ nnoremap <Space> za
 " Open all folds
 nnoremap zO zR
 " Close all folds
-nnoremap zC zM
+nnoremap <c-Space> zM
 " Close current fold
 nnoremap zc zc
 " Close all folds except the current one
@@ -306,7 +310,10 @@ nnoremap <S-Left> <c-w><
 nnoremap <S-Right> <c-w>>
 
 " OS Clipboard
-set clipboard=unnamedplus
+if has('clipboard')
+  set clipboard=unnamedplus
+endif
+
 vnoremap <leader>c "*y
 vnoremap <leader>v "*p
 vnoremap <leader>V "*P
@@ -348,7 +355,7 @@ let NERDTreeMapActivateNode='<space>'
 " ##### Airline  {{{
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
-let g:airline_theme = 'cobalt2'
+let g:airline_theme = 'gruvbox'
 let g:airline_section_warning = ''
 let g:airline_inactive_collapse = 0
 let g:airline#extensions#default#section_truncate_width = {
@@ -368,11 +375,10 @@ nnoremap <C-B> :Buffers<cr>
 " }}}
 " ##### Yankstack  {{{
 " Don't use default mappings
-let g:yankstack_map_keys = 0
+map p <Plug>(miniyank-autoput)
+map P <Plug>(miniyank-autoPut)
 
-" Set bindings
-nmap <C-M> <Plug>yankstack_substitute_older_paste
-nmap <C-N> <Plug>yankstack_substitute_newer_paste
+map <cr> <Plug>(miniyank-cycle)
 " }}}
 " ##### Number toggle  {{{
 let g:NumberToggleTrigger="<leader>ll"
@@ -380,6 +386,9 @@ let g:NumberToggleTrigger="<leader>ll"
 " ##### Javascript JSX {{{
 let g:jsx_ext_required = 0 " Allow JSX in normal JS files
 "}}}
+" ##### Terraform {{{
+let g:terraform_fmt_on_save = 1
+" }}}
 " ##### togglelist {{{
 let g:toggle_list_copen_command="Copen"
 " }}}
@@ -401,8 +410,23 @@ let g:deoplete#enable_at_startup = 1
 let g:deoplete#sources#go#sort_class = ['package', 'func', 'type', 'var', 'const']
 let g:deoplete#sources#go#use_cache = 1
 " }}}
-" ##### monster (ruby) {{{
-let g:monster#completion#rcodetools#backend = "async_rct_complete"
+" ##### language client {{{
+" Required for operations modifying multiple buffers like rename.
+set hidden
+
+let nodejs_prefix = systemlist('npm config get prefix')[0]
+
+let g:LanguageClient_serverCommands = {
+    \ 'javascript': [nodejs_prefix . '/lib/node_modules/javascript-typescript-langserver/lib/language-server-stdio.js'],
+    \ 'javascript.jsx': [nodejs_prefix . '/lib/node_modules/javascript-typescript-langserver/lib/language-server-stdio.js'],
+    \ }
+
+" Automatically start language servers.
+let g:LanguageClient_autoStart = 1
+
+nnoremap <silent> <leader>hv :call LanguageClient_textDocument_hover()<CR>
+nnoremap <silent> <leader>gt :call LanguageClient_textDocument_definition()<CR>
+nnoremap <silent> <leader>rn :call LanguageClient_textDocument_rename()<CR>
 " }}}
 " ##### Neomake {{{
 augroup neomake_save_linter
@@ -522,6 +546,8 @@ autocmd FileType go let g:go_highlight_fields = 1
 autocmd FileType go let g:go_highlight_types = 1
 autocmd FileType go let g:go_highlight_operators = 1
 autocmd FileType go let g:go_highlight_build_constraints = 1
+
+autocmd BufWritePost *.go :GoImports
 " }}}
 " ##### Rocker {{{
 autocmd BufRead,BufNewFile Rockerfile* set filetype=dockerfile
